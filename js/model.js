@@ -1,4 +1,4 @@
-class Model{
+export default class Model{
     constructor(){
         this.view = null;
         this.todos= [];
@@ -12,7 +12,16 @@ class Model{
         return this.todos;
     }
 
-    addTodo(todo){
-        console.log(todo);
+    addTodo(title, description){
+        const todo = {
+            id: 0,
+            title: title,
+            description: description,
+            completed: false,
+        }
+        this.todos.push(todo);
+        console.log(this.todos);
+
+        return todo;
     }
 }
