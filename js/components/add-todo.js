@@ -1,18 +1,22 @@
-export default class AddTodo {
-    constructor(){
-        this.btn = document.getElementById('add');
-        this.title = document.getElementById('title');
-        this.description = document.getElementById('description');
-    }
+import Alert from './alert.js';
 
-    onClick(callback){
-        this.btn.onClick = () => {
-            if(title.value === '' || description.value === ''){
-                // alert.classList.remove('d-done');
-                console.error('Incorrecto');
-            } else {
-                callback(this.title.value, this.description.value);
-            }
-        }
+export default class AddTodo {
+  constructor() {
+    this.btn = document.getElementById('add');
+    this.title = document.getElementById('title');
+    this.description = document.getElementById('description');
+
+    this.alert = new Alert('alert');
+  }
+
+  onClick(callback) {
+    this.btn.onclick = () => {
+      if (title.value === '' || description.value === '') {
+        this.alert.show('Title and description are required');
+      } else {
+        this.alert.hide();
+        callback(this.title.value, this.description.value);
+      }
     }
+  }
 }
