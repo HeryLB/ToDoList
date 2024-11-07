@@ -9,6 +9,7 @@ export default class Model {
             title: 'Learn JS',
             description: 'Watch JS Tutorials',
             completed: false,
+            priority: 'Medium', // Nueva propiedad con prioridad predeterminada
           }
         ]
         this.currentId = 1;
@@ -26,7 +27,7 @@ export default class Model {
     }
   
     getTodos() {
-      return this.todos.map((todo) => ({...todo}));
+      return this.todos.map((todo) => ({ ...todo }));
     }
   
     findTodo(id) {
@@ -46,24 +47,25 @@ export default class Model {
       this.save();
     }
   
-    addTodo(title, description) {
+    addTodo(title, description, priority = 'Medium') {  // Incluir prioridad
       const todo = {
         id: this.currentId++,
         title,
         description,
         completed: false,
-      }
+        priority,  // Agregar prioridad
+      };
   
       this.todos.push(todo);
-      console.log(this.todos);
       this.save();
   
-      return {...todo};
+      return { ...todo };
     }
   
     removeTodo(id) {
       const index = this.findTodo(id);
-      this.todos.splice(index, 1);  
+      this.todos.splice(index, 1);
       this.save();
     }
   }
+  

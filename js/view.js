@@ -1,4 +1,4 @@
-import AddTodo from './components/add-todo.js';
+import AddTodo from './components/add-todo.js'; 
 import Modal from './components/modal.js';
 import Filters from './components/filters.js';
 
@@ -11,7 +11,7 @@ export default class View {
     this.filters = new Filters();
     
 
-    this.addTodoForm.onClick((title, description) => this.addTodo(title, description));
+    this.addTodoForm.onClick((title, description, priority) => this.addTodo(title, description, priority));
     this.modal.onClick((id, values) => this.editTodo(id, values));
     this.filters.onClick((filters) => this.filter(filters));
   }
@@ -26,14 +26,18 @@ export default class View {
   }
 
   filter(filters) {
-    const { type, words } = filters;
+    const { type, words, priority } = filters;
     const [, ...rows] = this.table.getElementsByTagName('tr');
     for (const row of rows) {
-      const [title, description, completed] = row.children;
+      const [title, description, prio, completed] = row.children;
       let shouldHide = false;
 
       if (words) {
         shouldHide = !title.innerText.includes(words) && !description.innerText.includes(words);
+      }
+
+      if (priority && prio.innerText.toLowerCase() !== priority.toLowerCase() && priority !== '') {
+        shouldHide = true;
       }
 
       const shouldBeCompleted = type === 'completed';
@@ -51,8 +55,8 @@ export default class View {
     }
   }
 
-  addTodo(title, description) {
-    const todo = this.model.addTodo(title, description);
+  addTodo(title, description, priority) {
+    const todo = this.model.addTodo(title, description, priority);
     this.createRow(todo);
   }
 
@@ -65,7 +69,8 @@ export default class View {
     const row = document.getElementById(id);
     row.children[0].innerText = values.title;
     row.children[1].innerText = values.description;
-    row.children[2].children[0].checked = values.completed;
+    row.children[2].innerText = values.priority;
+    row.children[3].children[0].checked = values.completed;
   }
 
   removeTodo(id) {
@@ -79,37 +84,32 @@ export default class View {
     row.innerHTML = `
       <td>${todo.title}</td>
       <td>${todo.description}</td>
+      <td>${todo.priority}</td>  <!-- Mostrar prioridad -->
       <td class="text-center">
-
+        <input type="checkbox" ${todo.completed ? 'checked' : ''}>
       </td>
       <td class="text-right">
-
+        <button class="btn btn-primary mb-1"><i class="fa fa-pencil"></i></button>
+        <button class="btn btn-danger mb-1 ml-1"><i class="fa fa-trash"></i></button>
       </td>
     `;
 
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.checked = todo.completed;
-    checkbox.onclick = () => this.toggleCompleted(todo.id);
-    row.children[2].appendChild(checkbox);
-
-    const editBtn = document.createElement('button');
-    editBtn.classList.add('btn', 'btn-primary', 'mb-1');
-    editBtn.innerHTML = '<i class="fa fa-pencil"></i>';
-    editBtn.setAttribute('data-toggle', 'modal');
-    editBtn.setAttribute('data-target', '#modal');
+    // Botón de editar
+    const editBtn = row.children[4].children[0];
     editBtn.onclick = () => this.modal.setValues({
       id: todo.id,
-      title: row.children[0].innerText,
-      description: row.children[1].innerText,
-      completed: row.children[2].children[0].checked,
+      title: todo.title,
+      description: todo.description,
+      priority: todo.priority,
+      completed: todo.completed,
     });
-    row.children[3].appendChild(editBtn);
 
-    const removeBtn = document.createElement('button');
-    removeBtn.classList.add('btn', 'btn-danger', 'mb-1', 'ml-1');
-    removeBtn.innerHTML = '<i class="fa fa-trash"></i>';
+    // Botón de eliminar
+    const removeBtn = row.children[4].children[1];
     removeBtn.onclick = () => this.removeTodo(todo.id);
-    row.children[3].appendChild(removeBtn);
+
+    // Checkbox para marcar como completado
+    const checkbox = row.children[3].children[0];
+    checkbox.onclick = () => this.toggleCompleted(todo.id);
   }
 }
